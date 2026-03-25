@@ -1,0 +1,29 @@
+.container {
+    margin-top: 50px;
+}
+
+.welcome-section {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.action-card {
+    height: 100%;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 30px;
+}

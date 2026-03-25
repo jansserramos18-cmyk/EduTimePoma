@@ -1,0 +1,40 @@
+.container {
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 10px;
+}
+
+.card-header {
+    background-color: #27ae60;
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title {
+    margin: 0;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background-color: #27ae60;
+    border-color: #27ae60;
+}
+
+.btn-primary:hover {
+    background-color: #229954;
+    border-color: #229954;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
+}

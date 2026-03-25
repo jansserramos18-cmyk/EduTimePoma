@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduTimePoma - Agendador de Citas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+</head>
+<body>
+    <header>
+        <div class="navbar-container">
+            <div class="logo">
+                <i class="fas fa-calendar-alt"></i>
+                <span>EduTimePoma</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="{{ url_for('login_usuario') }}">
+                    <button class="btn-nav">
+                        <i class="fas fa-user"></i> Iniciar sesión como Usuario</button>
+                </a>
+                <a href="{{ url_for('login_maestro') }}">
+                    <button class="btn-nav maestro">
+                        <i class="fas fa-chalkboard-user"></i> Iniciar sesión como Docente</button>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Bienvenido a EduTimePoma</h1>
+            <p>La plataforma más inteligente para agendar citas con tus maestros preferidos</p>
+        </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section>
+        <div class="section-title">¿Quiénes somos?</div>
+        <div class="about-card">
+            <i class="fas fa-graduation-cap"></i>
+            <h3>Conectando Educación</h3>
+            <p>EduTimePoma es una plataforma revolucionaria encargada de agendar citas con tus maestros preferidos. Te permite registrarte de forma segura y obtener citas con maestros de calidad, facilitando la comunicación efectiva entre estudiantes y docentes.</p>
+        </div>
+    </section>
+
+    <!-- OBJECTIVES SECTION -->
+    <section>
+        <h2 class="section-title">Nuestros Objetivos</h2>
+        <p style="text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 40px;">Como plataforma nos encargamos de facilitar la comunicación entre estudiantes y maestros, permitiendo agendar citas de manera eficiente y sencilla.</p>
+        
+        <div class="objectives-grid">
+            <div class="objective-item">
+                <i class="fas fa-headset"></i>
+                <p>Facilitar la comunicación padres y maestros</p>
+            </div>
+            <div class="objective-item">
+                <i class="fas fa-clock"></i>
+                <p>Permitir a los padres del centro agendar citas de manera eficiente</p>
+            </div>
+            <div class="objective-item">
+                <i class="fas fa-lightbulb"></i>
+                <p>Ofrecer una plataforma fácil de usar para ambos</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section>
+        <div class="how-it-works">
+            <h3><i class="fas fa-question-circle"></i> ¿Cómo Funciona?</h3>
+            <p>Es muy sencillo. Solo debes <strong>registrarte</strong> con tu correo electrónico y contraseña. Luego podrás <strong>explorar nuestro catálogo de maestros</strong> y seleccionar el que mejor se adapte a tus necesidades. Finalmente, <strong>elige la fecha y hora</strong> que mejor te convenga para tu cita. ¡Así de simple!</p>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section>
+        <div class="cta-section">
+            <h2>¡Únete a EduTimePoma hoy mismo!</h2>
+            <p>Mejora tu experiencia educativa y conéctate con los mejores docentes</p>
+            <a href="{{ url_for('registro_usuario') }}">
+                <button class="btn-cta">¡Regístrate Ya!</button>
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-info-circle"></i> Sobre Nosotros</h4>
+                <p>EduTimePoma es una plataforma dedicada a mejorar la comunicación entre estudiantes y docentes.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4><i class="fas fa-link"></i> Enlaces Rápidos</h4>
+                <a href="{{ url_for('home') }}">Inicio</a><br>
+                <a href="{{ url_for('login_usuario') }}">Iniciar Sesión</a><br>
+                <a href="{{ url_for('registro_usuario') }}">Registrarse</a>
+            </div>
+            <div class="footer-section">
+                <h4><i class="fas fa-envelope"></i> Contacto</h4>
+                <p>Email: info@edutimepoma.com</p>
+                <p>Teléfono: +51 999 123 456</p>
+                <p>Ubicación: Lima, Perú</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 EduTimePoma. Todos los derechos reservados.</p>
+            <p>Diseñado con <i class="fas fa-heart" style="color: #ff6b6b;"></i> para mejorar la educación</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

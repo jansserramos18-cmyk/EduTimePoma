@@ -1,0 +1,72 @@
+.container {
+    max-width: 500px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 10px;
+}
+
+.card-header {
+    background-color: #27ae60;
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 20px;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 15px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
+}
+
+.btn-primary {
+    background-color: #27ae60;
+    border-color: #27ae60;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #229954;
+    border-color: #229954;
+}
+
+.text-center a {
+    color: #27ae60;
+    text-decoration: none;
+}
+
+.text-center a:hover {
+    color: #229954;
+    text-decoration: underline;
+}
+
+hr {
+    margin: 20px 0;
+    border-color: #ddd;
+}
+
+.alert {
+    border-radius: 8px;
+}

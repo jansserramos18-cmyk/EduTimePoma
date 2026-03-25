@@ -1,0 +1,58 @@
+.container {
+    margin-top: 50px;
+}
+
+.header-section {
+    background: linear-gradient(135deg, #27ae60 0%, #1abc9c 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header-section h2 {
+    margin-bottom: 10px;
+}
+
+.header-section p {
+    margin-bottom: 0;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state i {
+    color: #ccc;
+}
+
+.empty-state h4 {
+    color: #666;
+    margin-top: 20px;
+}
+
+.empty-state p {
+    color: #999;
+}
+

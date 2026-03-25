@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dashboard Maestro - EduTimePoma{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_maestro.css') }}">
+</head>
+<body class="bg-light">
+<div class="container mt-4">
+    <div class="header-section mb-4">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2><i class="fas fa-chalkboard-user"></i> Bienvenido profesor {{ nombre }}</h2>
+                <p>Estas son las citas que te han agendado los estudiantes:</p>
+            </div>
+            <a href="{{ url_for('home') }}" class="btn btn-light" style="height: fit-content;">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if citas %}
+    <div class="table-responsive mt-3">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha y hora</th>
+                    <th>Padre/Madre/Estudiante</th>
+                    <th>Correo</th>
+                    <th>Motivo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas %}
+                <tr>
+                    <td>{{ cita.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ cita.usuario_nombre }} {{ cita.usuario_apellido }}</td>
+                    <td>{{ cita.usuario_correo }}</td>
+                    <td>{{ cita.motivo }}</td>
+                    <td>
+                        {% if cita.fecha_hora > ahora %}
+                            <span class="badge bg-success">Programada</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Pasada</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if cita.fecha_hora > ahora %}
+                            <a href="{{ url_for('editar_cita_maestro', cita_id=cita.id_cita) }}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <form method="POST" action="{{ url_for('cancelar_cita_maestro', cita_id=cita.id_cita) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas cancelar esta cita?')">
+                                    <i class="fas fa-ban"></i> Cancelar
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-3">
+        <i class="fas fa-calendar-alt"></i> Aún no tienes citas relacionadas.
+    </div>
+    {% endif %}
+
+    <div class="mt-4" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Inicio
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">
+            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+        </a>
+        <form method="POST" action="{{ url_for('eliminar_cuenta') }}" onsubmit="return confirm('¿Estás seguro de eliminar tu cuenta y todos tus datos? Esta acción es irreversible.');">
+            <button type="submit" class="btn btn-dark">
+                <i class="fas fa-user-slash"></i> Eliminar Cuenta
+            </button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
