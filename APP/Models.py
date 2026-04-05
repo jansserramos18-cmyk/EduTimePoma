@@ -2,8 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-class Usuario(db.Model):
- 
+class Usuario(db.Model):    
     __tablename__ = 'usuarios'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -12,7 +11,7 @@ class Usuario(db.Model):
     p_apellido = db.Column(db.String(50), nullable=False)
     s_apellido = db.Column(db.String(50), nullable=False)
     correo = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False) # NUEVO CAMPO
+    contraseña = db.Column(db.String(128), nullable=False) # NUEVO CAMPO
 
     citas = db.relationship('Cita', backref='usuario', lazy=True)
 
@@ -25,7 +24,7 @@ class Profesor(db.Model):
     p_apellido = db.Column(db.String(50), nullable=False)
     s_apellido = db.Column(db.String(50), nullable=True)
     correo = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False) 
+    contraseña = db.Column(db.String(128), nullable=False) 
     
 
     citas = db.relationship('Cita', backref='profesor', lazy=True)
@@ -35,7 +34,6 @@ class Cita(db.Model):
     motivo = db.Column(db.Text, nullable=False)
     fecha_hora = db.Column(db.DateTime, nullable=False)
     
-
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     profesor_id = db.Column(db.Integer, db.ForeignKey('profesores.id'), nullable=False)
     

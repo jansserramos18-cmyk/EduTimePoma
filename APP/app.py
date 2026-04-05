@@ -1,29 +1,28 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from flask_session import Session  # Para guardar las sesiones en la base de datos
+from flask_session import Session  
 from Models import db, Usuario, Profesor, Cita
+from sqlalchemy import or_
 from datetime import datetime
 
 app = Flask(__name__)
 
-# Configuraciones de la base de datos
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///EduTime.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'El_mayor_acto_de_amor_que_ha_recibido_el_mundo_es_que_el__Señor_dio_su_vida_por_nosotros'
 
-# Configuración de sesiones en la base de datos para que no se pierdan
+
 app.config['SESSION_TYPE'] = 'sqlalchemy'
 app.config['SESSION_SQLALCHEMY'] = db
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_USE_SIGNER'] = True
 
-# Inicializar la base de datos y las sesiones
+
 db.init_app(app)
-Session(app)  # Esto hace que las sesiones se guarden en la DB
+Session(app)  
 
 with app.app_context():
-    db.create_all()  # Crear las tablas si no existen
-
-# Rutas de la aplicación
+    db.create_all()  
 
 @app.route('/')
 def home():
@@ -33,14 +32,14 @@ def home():
 def login_usuario():
     if request.method == 'POST':
         correo = request.form.get('correo')
-        password = request.form.get('password')
+        contraseña = request.form.get('contraseña')
 
-        user = Usuario.query.filter_by(correo=correo).first()
+        usuario = Usuario.query.filter_by(correo=correo).first()
 
-        if user and user.password == password:
-            session['user_id'] = user.id
+        if usuario and usuario.contraseña == contraseña:
+            session['user_id'] = usuario.id
             session['role'] = 'usuario'
-            session['nombre'] = user.p_nombre
+            session['nombre'] = usuario.p_nombre
             return redirect(url_for('dashboard_usuario'))
         else:
             flash("Correo o contraseña incorrectos", "danger")
@@ -51,15 +50,14 @@ def login_usuario():
 def login_maestro():
     if request.method == 'POST':
         correo = request.form.get('correo')
-        password = request.form.get('password')
+        contraseña = request.form.get('contraseña')
 
-        # Buscar el maestro
-        teacher = Profesor.query.filter_by(correo=correo).first()
+        maestro = Profesor.query.filter_by(correo=correo).first()
 
-        if teacher and teacher.password == password:
-            session['maestro_id'] = teacher.id
+        if maestro and maestro.contraseña == contraseña:
+            session['maestro_id'] = maestro.id
             session['role'] = 'maestro'
-            session['nombre'] = teacher.p_nombre
+            session['nombre'] = maestro.p_nombre
             return redirect(url_for('dashboard_maestro'))
         else:
             flash("Correo o contraseña incorrectos", "danger")
@@ -74,16 +72,15 @@ def registro_usuario():
         apellido_p = request.form.get('apellido_p')
         apellido_m = request.form.get('apellido_m')
         correo = request.form.get('correo')
-        password = request.form.get('contraseña')
+        contraseña = request.form.get('contraseña')
 
-        # Crear un nuevo usuario
         nuevo_usuario = Usuario(
             p_nombre=nombre,
             s_nombre=s_nombre,
             p_apellido=apellido_p,
             s_apellido=apellido_m,
             correo=correo,
-            password=password
+            contraseña=contraseña
         )
 
         try:
@@ -105,21 +102,20 @@ def registro_maestro():
         apellido_p = request.form.get('apellido_p')
         apellido_m = request.form.get('apellido_m')
         correo = request.form.get('correo')
-        password = request.form.get('contraseña')
+        contraseña = request.form.get('contraseña')
 
-        # Crear un nuevo maestro
+
         nuevo_maestro = Profesor(
             p_nombre=nombre,
             s_nombre=s_nombre,
             p_apellido=apellido_p,
             s_apellido=apellido_m,
             correo=correo,
-            password=password
+            contraseña=contraseña
         )
 
-        # Validar correo único
-        existing = Profesor.query.filter_by(correo=correo).first()
-        if existing:
+        existe = Profesor.query.filter_by(correo=correo).first()
+        if existe:
             flash("El correo ya está registrado como maestro. Inicia sesión.", "warning")
             return redirect(url_for('login_maestro'))
 
@@ -138,7 +134,17 @@ def registro_maestro():
 def dashboard_usuario():
     if 'user_id' not in session:
         return redirect(url_for('login_usuario'))
-    return render_template('dashboard_usuario.html', nombre=session.get('nombre'))
+
+    citas = Cita.query.filter_by(usuario_id=session['user_id']).join(Profesor).add_columns(
+        Cita.id_cita,
+        Cita.motivo,
+        Cita.fecha_hora,
+        Profesor.p_nombre.label('profesor_nombre'),
+        Profesor.p_apellido.label('profesor_apellido'),
+        Profesor.correo.label('profesor_correo')
+    ).all()
+
+    return render_template('dashboard_usuario.html', nombre=session.get('nombre'), citas=citas, ahora=datetime.now())
 
 @app.route('/dashboard_maestro')
 def dashboard_maestro():
@@ -167,13 +173,11 @@ def agendar_cita():
         fecha_hora_str = request.form.get('fecha_hora')
 
         try:
-            # Convertir la fecha y hora
             fecha_hora = datetime.strptime(fecha_hora_str, '%Y-%m-%dT%H:%M')
         except ValueError:
             flash("La fecha y hora no están bien", "danger")
             return redirect(url_for('agendar_cita'))
 
-        # Crear la cita
         nueva_cita = Cita(
             motivo=motivo,
             fecha_hora=fecha_hora,
@@ -190,7 +194,6 @@ def agendar_cita():
             db.session.rollback()
             flash(f"Error al agendar: {e}", "danger")
 
-    # Obtener los maestros para mostrar en el formulario
     profesores = Profesor.query.all()
     return render_template('agendar_cita.html', profesores=profesores)
 
@@ -199,7 +202,6 @@ def mis_citas():
     if 'user_id' not in session:
         return redirect(url_for('login_usuario'))
 
-    # Obtener las citas del usuario con info del profesor
     citas = Cita.query.filter_by(usuario_id=session['user_id']).join(Profesor).add_columns(
         Cita.id_cita,
         Cita.motivo,
@@ -218,12 +220,11 @@ def editar_cita(cita_id):
     
     cita = Cita.query.get_or_404(cita_id)
     
-    # Verificar que el usuario sea propietario de la cita
+
     if cita.usuario_id != session['user_id']:
         flash("No tienes permiso para editar esta cita", "danger")
         return redirect(url_for('mis_citas'))
-    
-    # Verificar que la cita no haya pasado
+
     if cita.fecha_hora < datetime.now():
         flash("No puedes editar una cita que ya ha pasado", "warning")
         return redirect(url_for('mis_citas'))
@@ -260,12 +261,12 @@ def cancelar_cita_maestro(cita_id):
     
     cita = Cita.query.get_or_404(cita_id)
     
-    # Verificar que el maestro sea propietario de la cita
+
     if cita.profesor_id != session['maestro_id']:
         flash("No tienes permiso para cancelar esta cita", "danger")
         return redirect(url_for('dashboard_maestro'))
     
-    # Verificar que la cita no haya pasado
+
     if cita.fecha_hora < datetime.now():
         flash("No puedes cancelar una cita que ya ha pasado", "warning")
         return redirect(url_for('dashboard_maestro'))
@@ -287,18 +288,18 @@ def editar_cita_maestro(cita_id):
     
     cita = Cita.query.get_or_404(cita_id)
     
-    # Verificar que el maestro sea propietario de la cita
+
     if cita.profesor_id != session['maestro_id']:
         flash("No tienes permiso para editar esta cita", "danger")
         return redirect(url_for('dashboard_maestro'))
     
-    # Verificar que la cita no haya pasado
+
     if cita.fecha_hora < datetime.now():
         flash("No puedes editar una cita que ya ha pasado", "warning")
         return redirect(url_for('dashboard_maestro'))
     
     if request.method == 'POST':
-        motivo_respuesta = request.form.get('motivo_respuesta')
+        motivo = request.form.get('motivo')
         fecha_hora_str = request.form.get('fecha_hora')
         
         try:
@@ -309,6 +310,7 @@ def editar_cita_maestro(cita_id):
         
         try:
             cita.fecha_hora = fecha_hora
+            cita.motivo = motivo
             db.session.commit()
             flash("¡Cita actualizada exitosamente!", "success")
             return redirect(url_for('dashboard_maestro'))
@@ -321,7 +323,7 @@ def editar_cita_maestro(cita_id):
 
 @app.route('/logout')
 def logout():
-    session.clear()  # Limpiar la sesión
+    session.clear() 
     return redirect(url_for('home'))
 
 @app.route('/eliminar_cuenta', methods=['POST'])
@@ -331,7 +333,7 @@ def eliminar_cuenta():
     if role == 'usuario' and 'user_id' in session:
         usuario = Usuario.query.get(session['user_id'])
         if usuario:
-            # Eliminar las citas vinculadas primero para evitar problemas de FK
+        
             Cita.query.filter_by(usuario_id=usuario.id).delete()
             db.session.delete(usuario)
             db.session.commit()
@@ -351,6 +353,100 @@ def eliminar_cuenta():
 
     flash('No se encontró ninguna sesión activa para eliminar.', 'warning')
     return redirect(url_for('home'))
+
+@app.route('/editar_perfil_usuario', methods=['GET', 'POST'])
+def editar_perfil_usuario():
+    if 'user_id' not in session:
+        return redirect(url_for('login_usuario'))
+
+    usuario = Usuario.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        s_nombre = request.form.get('s_nombre')
+        apellido_p = request.form.get('apellido_p')
+        apellido_m = request.form.get('apellido_m')
+        correo = request.form.get('correo')
+        contraseña_actual = request.form.get('contraseña_actual')
+        nueva_contraseña = request.form.get('nueva_contraseña')
+
+        
+        if not usuario.contraseña == contraseña_actual:
+            flash("La contraseña actual es incorrecta", "danger")
+            return redirect(url_for('editar_perfil_usuario'))
+
+        
+        if correo != usuario.correo:
+            existing = Usuario.query.filter_by(correo=correo).first()
+            if existing:
+                flash("El correo ya está registrado por otro usuario", "warning")
+                return redirect(url_for('editar_perfil_usuario'))
+
+        try:
+            usuario.p_nombre = nombre
+            usuario.s_nombre = s_nombre
+            usuario.p_apellido = apellido_p
+            usuario.s_apellido = apellido_m
+            usuario.correo = correo
+
+            if nueva_contraseña:
+                usuario.contraseña = nueva_contraseña
+
+            db.session.commit()
+            session['nombre'] = nombre  # Actualizar nombre en sesión
+            flash("¡Perfil actualizado exitosamente!", "success")
+            return redirect(url_for('dashboard_usuario'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error al actualizar perfil: {e}", "danger")
+
+    return render_template('editar_perfil_usuario.html', usuario=usuario)
+
+@app.route('/editar_perfil_maestro', methods=['GET', 'POST'])
+def editar_perfil_maestro():
+    if 'maestro_id' not in session:
+        return redirect(url_for('login_maestro'))
+
+    maestro = Profesor.query.get(session['maestro_id'])
+
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        s_nombre = request.form.get('s_nombre')
+        apellido_p = request.form.get('apellido_p')
+        apellido_m = request.form.get('apellido_m')
+        correo = request.form.get('correo')
+        contraseña_actual = request.form.get('contraseña_actual')
+        nueva_contraseña = request.form.get('nueva_contraseña')
+
+        if not maestro.contraseña == contraseña_actual:
+            flash("La contraseña actual es incorrecta", "danger")
+            return redirect(url_for('editar_perfil_maestro'))
+
+        if correo != maestro.correo:
+            existing = Profesor.query.filter_by(correo=correo).first()
+            if existing:
+                flash("El correo ya está registrado por otro maestro", "warning")
+                return redirect(url_for('editar_perfil_maestro'))
+
+        try:
+            maestro.p_nombre = nombre
+            maestro.s_nombre = s_nombre
+            maestro.p_apellido = apellido_p
+            maestro.s_apellido = apellido_m
+            maestro.correo = correo
+
+            if nueva_contraseña:
+                maestro.contraseña = nueva_contraseña
+
+            db.session.commit()
+            session['nombre'] = nombre  
+            flash("¡Perfil actualizado exitosamente!", "success")
+            return redirect(url_for('dashboard_maestro'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error al actualizar perfil: {e}", "danger")
+
+    return render_template('editar_perfil_maestro.html', maestro=maestro)
 
 if __name__ == '__main__':
     app.run(debug=True)

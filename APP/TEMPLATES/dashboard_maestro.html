@@ -85,9 +85,10 @@
     {% endif %}
 
     <div class="mt-4" style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <a href="{{ url_for('home') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Volver al Inicio
+        <a href="{{ url_for('editar_perfil_maestro') }}" class="btn btn-info">
+            <i class="fas fa-user-edit"></i> Editar Perfil
         </a>
+
         <a href="{{ url_for('logout') }}" class="btn btn-danger">
             <i class="fas fa-sign-out-alt"></i> Cerrar sesión
         </a>
