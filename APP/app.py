@@ -58,9 +58,11 @@ def login_maestro():
             session['maestro_id'] = maestro.id
             session['role'] = 'maestro'
             session['nombre'] = maestro.p_nombre
+            if maestro.is_superuser:
+                session['is_superuser'] = True
             return redirect(url_for('dashboard_maestro'))
         else:
-            flash("Correo o contraseña incorrectos", "danger")
+            flash("Correo o contraseña incorrectos, o no estás registrado como docente. Hable con el equipo de coordinación para la autorización de su registro como docente.", "danger")
 
     return render_template('inicio_de_sesion_como_maestro.html')
 
@@ -96,6 +98,10 @@ def registro_usuario():
 
 @app.route('/registro_maestro', methods=['GET', 'POST'])
 def registro_maestro():
+    if not session.get('is_superuser'):
+        flash("Acceso denegado. Solo superusuarios pueden registrar maestros.", "danger")
+        return redirect(url_for('home'))
+
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         s_nombre = request.form.get('s_nombre')
@@ -103,7 +109,11 @@ def registro_maestro():
         apellido_m = request.form.get('apellido_m')
         correo = request.form.get('correo')
         contraseña = request.form.get('contraseña')
+        matricula = request.form.get('matricula')
+        dias = request.form.getlist('dias')  # Lista de días seleccionados
 
+        username = f"{nombre}{apellido_p}{matricula}".lower().replace(" ", "")
+        dias_disponibles = ",".join(dias)
 
         nuevo_maestro = Profesor(
             p_nombre=nombre,
@@ -111,13 +121,24 @@ def registro_maestro():
             p_apellido=apellido_p,
             s_apellido=apellido_m,
             correo=correo,
-            contraseña=contraseña
+            contraseña=contraseña,
+            matricula=matricula,
+            username=username,
+            dias_disponibles=dias_disponibles
         )
 
-        existe = Profesor.query.filter_by(correo=correo).first()
-        if existe:
+        existe_correo = Profesor.query.filter_by(correo=correo).first()
+        existe_matricula = Profesor.query.filter_by(matricula=matricula).first()
+        existe_username = Profesor.query.filter_by(username=username).first()
+        if existe_correo:
             flash("El correo ya está registrado como maestro. Inicia sesión.", "warning")
             return redirect(url_for('login_maestro'))
+        if existe_matricula:
+            flash("La matrícula ya está registrada.", "warning")
+            return redirect(url_for('registro_maestro'))
+        if existe_username:
+            flash("El nombre de usuario generado ya existe.", "warning")
+            return redirect(url_for('registro_maestro'))
 
         try:
             db.session.add(nuevo_maestro)
@@ -146,21 +167,21 @@ def dashboard_usuario():
 
     return render_template('dashboard_usuario.html', nombre=session.get('nombre'), citas=citas, ahora=datetime.now())
 
-@app.route('/dashboard_maestro')
-def dashboard_maestro():
-    if 'maestro_id' not in session:
-        return redirect(url_for('login_maestro'))
+@app.route('/dashboard_superusuario')
+def dashboard_superusuario():
+    if not session.get('is_superuser'):
+        return redirect(url_for('home'))  # O página de error
 
-    citas = Cita.query.filter_by(profesor_id=session['maestro_id']).join(Usuario).add_columns(
-        Cita.id_cita,
-        Cita.motivo,
-        Cita.fecha_hora,
-        Usuario.p_nombre.label('usuario_nombre'),
-        Usuario.p_apellido.label('usuario_apellido'),
-        Usuario.correo.label('usuario_correo')
-    ).all()
+    total_usuarios = Usuario.query.count()
+    total_maestros = Profesor.query.count()
+    total_citas = Cita.query.count()
+    citas = Cita.query.join(Usuario).join(Profesor).all()
 
-    return render_template('dashboard_maestro.html', nombre=session.get('nombre'), citas=citas, ahora=datetime.now())
+    return render_template('dashboard_superusuario.html', 
+                           total_usuarios=total_usuarios, 
+                           total_maestros=total_maestros, 
+                           total_citas=total_citas, 
+                           citas=citas)
 
 @app.route('/agendar_cita', methods=['GET', 'POST'])
 def agendar_cita():
@@ -254,23 +275,13 @@ def editar_cita(cita_id):
     profesores = Profesor.query.all()
     return render_template('editar_cita.html', cita=cita, profesores=profesores)
 
-@app.route('/cancelar_cita_maestro/<int:cita_id>', methods=['POST'])
-def cancelar_cita_maestro(cita_id):
-    if 'maestro_id' not in session:
-        return redirect(url_for('login_maestro'))
-    
+@app.route('/cancelar_cita_superusuario/<int:cita_id>', methods=['POST'])
+def cancelar_cita_superusuario(cita_id):
+    if not session.get('is_superuser'):
+        return redirect(url_for('home'))
+
     cita = Cita.query.get_or_404(cita_id)
-    
 
-    if cita.profesor_id != session['maestro_id']:
-        flash("No tienes permiso para cancelar esta cita", "danger")
-        return redirect(url_for('dashboard_maestro'))
-    
-
-    if cita.fecha_hora < datetime.now():
-        flash("No puedes cancelar una cita que ya ha pasado", "warning")
-        return redirect(url_for('dashboard_maestro'))
-    
     try:
         db.session.delete(cita)
         db.session.commit()
@@ -279,7 +290,7 @@ def cancelar_cita_maestro(cita_id):
         db.session.rollback()
         flash(f"Error al cancelar: {e}", "danger")
     
-    return redirect(url_for('dashboard_maestro'))
+    return redirect(url_for('dashboard_superusuario'))
 
 @app.route('/editar_cita_maestro/<int:cita_id>', methods=['GET', 'POST'])
 def editar_cita_maestro(cita_id):
