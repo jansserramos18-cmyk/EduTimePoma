@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_session import Session  
-from Models import db, Usuario, Profesor, Cita
+from Models import db, Usuario, Profesor, Superusuario, Cita
 from sqlalchemy import or_
 from datetime import datetime
 
@@ -65,6 +65,24 @@ def login_maestro():
             flash("Correo o contraseña incorrectos, o no estás registrado como docente. Hable con el equipo de coordinación para la autorización de su registro como docente.", "danger")
 
     return render_template('inicio_de_sesion_como_maestro.html')
+
+@app.route('/login_superusuario', methods=['GET', 'POST'])
+def login_superusuario():
+    if request.method == 'POST':
+        correo = request.form.get('correo')
+        contraseña = request.form.get('contraseña')
+
+        superusuario = Superusuario.query.filter_by(correo=correo).first()
+
+        if superusuario and superusuario.contraseña == contraseña:
+            session['superuser_id'] = superusuario.id
+            session['role'] = 'superusuario'
+            session['nombre'] = superusuario.p_nombre
+            return redirect(url_for('dashboard_superusuario'))
+        else:
+            flash("Correo o contraseña incorrectos", "danger")
+
+    return render_template('inicio_de_sesion_como_superusuario.html')
 
 @app.route('/registro_usuario', methods=['GET', 'POST'])
 def registro_usuario():
@@ -167,21 +185,53 @@ def dashboard_usuario():
 
     return render_template('dashboard_usuario.html', nombre=session.get('nombre'), citas=citas, ahora=datetime.now())
 
-@app.route('/dashboard_superusuario')
+@app.route('/dashboard_superusuario', methods=['GET', 'POST'])
 def dashboard_superusuario():
-    if not session.get('is_superuser'):
-        return redirect(url_for('home'))  # O página de error
+    if request.method == 'POST':
+        p_nombre = request.form.get('p_nombre')
+        s_nombre = request.form.get('s_nombre')
+        p_apellido = request.form.get('p_apellido')
+        s_apellido = request.form.get('s_apellido')
+        matricula = request.form.get('matricula')
+        username = request.form.get('username')
+        correo = request.form.get('correo')
+        contraseña = request.form.get('contraseña')
 
-    total_usuarios = Usuario.query.count()
-    total_maestros = Profesor.query.count()
-    total_citas = Cita.query.count()
-    citas = Cita.query.join(Usuario).join(Profesor).all()
+        # Verificar si ya existe
+        existe_matricula = Superusuario.query.filter_by(matricula=matricula).first()
+        existe_username = Superusuario.query.filter_by(username=username).first()
+        existe_correo = Superusuario.query.filter_by(correo=correo).first()
+        if existe_matricula:
+            flash("La matrícula ya está registrada.", "warning")
+            return redirect(url_for('dashboard_superusuario'))
+        if existe_username:
+            flash("El nombre de usuario ya existe.", "warning")
+            return redirect(url_for('dashboard_superusuario'))
+        if existe_correo:
+            flash("El correo ya está registrado.", "warning")
+            return redirect(url_for('dashboard_superusuario'))
 
-    return render_template('dashboard_superusuario.html', 
-                           total_usuarios=total_usuarios, 
-                           total_maestros=total_maestros, 
-                           total_citas=total_citas, 
-                           citas=citas)
+        nuevo_superusuario = Superusuario(
+            p_nombre=p_nombre,
+            s_nombre=s_nombre,
+            p_apellido=p_apellido,
+            s_apellido=s_apellido,
+            matricula=matricula,
+            username=username,
+            correo=correo,
+            contraseña=contraseña
+        )
+
+        try:
+            db.session.add(nuevo_superusuario)
+            db.session.commit()
+            flash("¡Superusuario registrado exitosamente!", "success")
+            return redirect(url_for('home'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error al registrar: {e}", "danger")
+
+    return render_template('dashboard_superusuario.html')
 
 @app.route('/agendar_cita', methods=['GET', 'POST'])
 def agendar_cita():
@@ -458,6 +508,22 @@ def editar_perfil_maestro():
             flash(f"Error al actualizar perfil: {e}", "danger")
 
     return render_template('editar_perfil_maestro.html', maestro=maestro)
+
+@app.route('/dashboard_maestro')
+def dashboard_maestro():
+    if 'maestro_id' not in session:
+        return redirect(url_for('login_maestro'))
+
+    citas = Cita.query.filter_by(profesor_id=session['maestro_id']).join(Usuario).add_columns(
+        Cita.id_cita,
+        Cita.motivo,
+        Cita.fecha_hora,
+        Usuario.p_nombre.label('usuario_nombre'),
+        Usuario.p_apellido.label('usuario_apellido'),
+        Usuario.correo.label('usuario_correo')
+    ).all()
+
+    return render_template('dashboard_maestro.html', nombre=session.get('nombre'), citas=citas, ahora=datetime.now())
 
 if __name__ == '__main__':
     app.run(debug=True)

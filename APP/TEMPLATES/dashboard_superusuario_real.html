@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Superusuario - EduTimePoma</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_superusuario.css') }}">
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
+                <div class="sidebar-sticky">
+                    <h5 class="text-white p-3">Superusuario</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active text-white" href="#estadisticas">
+                                <i class="fas fa-chart-bar"></i> Estadísticas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#citas">
+                                <i class="fas fa-calendar"></i> Todas las Citas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('registro_maestro') }}">
+                                <i class="fas fa-user-plus"></i> Registrar Maestro
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard Superusuario</h1>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'warning' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Estadísticas -->
+                <section id="estadisticas" class="mb-5">
+                    <h3>Estadísticas Generales</h3>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card text-white bg-primary mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-users"></i> Total Usuarios</h5>
+                                    <p class="card-text">{{ total_usuarios }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-white bg-success mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-chalkboard-teacher"></i> Total Maestros</h5>
+                                    <p class="card-text">{{ total_maestros }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-white bg-info mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-calendar-check"></i> Total Citas</h5>
+                                    <p class="card-text">{{ total_citas }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Todas las Citas -->
+                <section id="citas">
+                    <h3>Todas las Citas</h3>
+                    {% if citas %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Fecha y Hora</th>
+                                    <th>Usuario</th>
+                                    <th>Profesor</th>
+                                    <th>Motivo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in citas %}
+                                <tr>
+                                    <td>{{ cita.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>{{ cita.usuario.p_nombre }} {{ cita.usuario.p_apellido }}</td>
+                                    <td>{{ cita.profesor.p_nombre }} {{ cita.profesor.p_apellido }}</td>
+                                    <td>{{ cita.motivo }}</td>
+                                    <td>
+                                        {% if cita.fecha_hora > ahora %}
+                                            <span class="badge bg-success">Programada</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Pasada</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if cita.fecha_hora > ahora %}
+                                            <form method="POST" action="{{ url_for('cancelar_cita_superusuario', cita_id=cita.id_cita) }}" style="display:inline;">
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas cancelar esta cita?')">
+                                                    <i class="fas fa-ban"></i> Cancelar
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-calendar-alt"></i> No hay citas registradas.
+                    </div>
+                    {% endif %}
+                </section>
+
+                <!-- Botones adicionales -->
+                <div class="mt-4" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="{{ url_for('agendar_cita') }}" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Agendar Cita
+                    </a>
+                    <a href="{{ url_for('editar_perfil_superusuario') }}" class="btn btn-info">
+                        <i class="fas fa-user-edit"></i> Editar Perfil
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

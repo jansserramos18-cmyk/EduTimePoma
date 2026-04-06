@@ -1,0 +1,51 @@
+.container {
+    max-width: 500px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 10px;
+}
+
+.card-header {
+    background-color: #e74c3c; /* Rojo para superusuario */
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 20px;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 15px;
+}
+
+.form-control:focus {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+}
+
+.btn-primary {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+}
