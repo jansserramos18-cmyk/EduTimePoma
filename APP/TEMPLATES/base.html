@@ -20,7 +20,7 @@
             <div class="nav-buttons">
                 <a href="{{ url_for('login_usuario') }}">
                     <button class="btn-nav">
-                    Iniciar sesión como Usuario</button>
+                        <i class="fas fa-user"></i> Iniciar sesión como Usuario</button>
                 </a>
                 <a href="{{ url_for('login_maestro') }}">
                     <button class="btn-nav maestro">
@@ -30,7 +30,7 @@
         </div>
     </header>
 
-
+    <!-- HERO SECTION -->
     <section class="hero-section">
         <div class="hero-content">
             <h1>Bienvenido a EduTimePoma</h1>
@@ -39,7 +39,7 @@
         </div>
     </section>
 
-
+    <!-- ABOUT SECTION -->
     <section>
         <div class="section-title">¿Quiénes somos?</div>
         <div class="about-card">
@@ -52,7 +52,7 @@
         </div>
     </section>
 
-
+    <!-- OBJECTIVES SECTION -->
     <section>
         <h2 class="section-title">Nuestros Objetivos</h2>
         <p style="text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 40px;">
@@ -65,6 +65,7 @@
                 <p>Facilitar la comunicación padres y maestros</p>
             </div>
             <div class="objective-item">
+                <i class="fas fa-clock"></i>
                 <p>Permitir a los padres del centro agendar citas de manera 
                     eficiente</p>
             </div>
@@ -75,6 +76,7 @@
         </div>
     </section>
 
+    <!-- HOW IT WORKS -->
     <section>
         <div class="how-it-works">
             <h3><i class="fas fa-question-circle"></i> ¿Cómo Funciona?</h3>
@@ -82,6 +84,7 @@
         </div>
     </section>
 
+    <!-- CTA SECTION -->
     <section>
         <div class="cta-section">
             <h2>¡Únete a EduTimePoma hoy mismo!</h2>
@@ -92,7 +95,7 @@
         </div>
     </section>
 
-
+    <!-- FOOTER -->
     <footer>
         <div class="footer-content">
             <div class="footer-section">
@@ -100,13 +103,13 @@
                 <p>EduTimePoma es una plataforma dedicada a facilitar la gestión de citas entre padres y docentes.</p>
             </div>
             <div class="footer-section">
-                <h4>Enlaces </h4>
+                <h4><i class="fas fa-link"></i> Enlaces </h4>
                 <a href="{{ url_for('home') }}">Inicio</a><br>
                 <a href="{{ url_for('login_usuario') }}">Iniciar Sesión</a><br>
                 <a href="{{ url_for('registro_usuario') }}">Registrarse</a>
             </div>
             <div class="footer-section">
-                <h4>Contacto</h4>
+                <h4><i class="fas fa-envelope"></i> Contacto</h4>
                 <p>Email: agendarconEduTime@gmail.com </p>
                 <p>Teléfono: 809-434-6968</p>
                 <p>Ubicación: Santo Domingo Oeste, República Dominicana</p>

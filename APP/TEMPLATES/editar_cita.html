@@ -16,7 +16,7 @@
                     <h3 class="card-title">Editar Cita</h3>
                     <div>
                         <a href="{{ url_for('mis_citas') }}" class="btn btn-secondary btn-sm">
-                        Volver
+                            <i class="fas fa-arrow-left"></i> Volver
                         </a>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
                         <div class="mb-3">
                             <label for="fecha_hora" class="form-label">Fecha y Hora</label>
                             <input type="datetime-local" class="form-control" id="fecha_hora" name="fecha_hora" 
-                                value="{{ cita.fecha_hora.strftime('%Y-%m-%dT%H:%M') }}" required>
+                                   value="{{ cita.fecha_hora.strftime('%Y-%m-%dT%H:%M') }}" required>
                         </div>
                         
                         <div class="mb-3">
@@ -58,16 +58,16 @@
                         
                         <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
                             <a href="{{ url_for('mis_citas') }}" class="btn btn-secondary">
-                            Cancelar
+                                <i class="fas fa-times"></i> Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary">
-                            Guardar Cambios
+                                <i class="fas fa-save"></i> Guardar Cambios
                             </button>
                         </div>
                     </form>
 
                     <div class="alert alert-info mt-4">
-                        <strong>Información de la Cita Original:</strong>
+                        <strong><i class="fas fa-info-circle"></i> Información de la Cita Original:</strong>
                         <ul class="mb-0 mt-2">
                             <li><strong>ID de la Cita:</strong> {{ cita.id_cita }}</li>
                             <li><strong>Fecha de Creación:</strong> [Sistema]</li>

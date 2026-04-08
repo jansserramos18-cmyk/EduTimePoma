@@ -181,7 +181,6 @@ def login_superusuario():
             session['superuser_id'] = superusuario.id
             session['role'] = 'superusuario'
             session['nombre'] = superusuario.p_nombre
-            session['is_superuser'] = True
             return redirect(url_for('dashboard_superusuario'))
         else:
             flash("Credenciales incorrectas.", "danger")
@@ -286,8 +285,22 @@ def registro_maestro():
             contraseña=generate_password_hash(contraseña),  # Hash seguro
             matricula=matricula,
             username=username,
-            dias_disponibles=",".join(dias)
+            dias_disponibles=dias_disponibles
         )
+
+        existe_el_correo = Profesor.query.filter_by(correo=correo).first()
+        existe_la_matricula = Profesor.query.filter_by(matricula=matricula).first()
+        existe_el_username = Profesor.query.filter_by(username=username).first()
+
+        if existe_el_correo:
+            flash("El correo ya está registrado como maestro. Inicia sesión.", "warning")
+            return redirect(url_for('login_maestro'))
+        if existe_la_matricula:
+            flash("La matrícula ya está registrada.", "warning")
+            return redirect(url_for('registro_maestro'))
+        if existe_el_username:
+            flash("El nombre de usuario generado ya existe.", "warning")
+            return redirect(url_for('registro_maestro'))
 
         try:
             db.session.add(nuevo_maestro)
@@ -301,49 +314,18 @@ def registro_maestro():
 
     return render_template('registro_maestro.html')
 
-
 @app.route('/registro_superusuario', methods=['GET', 'POST'])
-@limiter.limit("3 per hour")
 def registro_superusuario():
-    CLAVE_ADMIN = os.environ.get('ADMIN_REGISTRATION_KEY', '')
-
+    
     if request.method == 'POST':
-        clave_ingresada = request.form.get('clave_admin', '')
-
-        if not CLAVE_ADMIN or clave_ingresada != CLAVE_ADMIN:
-            flash("Clave de administrador incorrecta o no configurada.", "danger")
-            return render_template('registro_superusuario.html')
-
-        p_nombre   = request.form.get('p_nombre', '').strip()
-        s_nombre   = request.form.get('s_nombre', '').strip()
-        p_apellido = request.form.get('p_apellido', '').strip()
-        s_apellido = request.form.get('s_apellido', '').strip()
-        correo     = request.form.get('correo', '').strip()
-        contraseña = request.form.get('contraseña', '')
-        matricula  = request.form.get('matricula', '').strip()
-        username   = request.form.get('username', '').strip()
-
-        if campos_vacios(p_nombre, p_apellido, correo, contraseña, matricula, username):
-            flash("Todos los campos obligatorios deben estar completos.", "warning")
-            return render_template('registro_superusuario.html')
-
-        if not es_correo_valido(correo):
-            flash("El formato del correo no es válido.", "warning")
-            return render_template('registro_superusuario.html')
-
-        if not es_contraseña_fuerte(contraseña):
-            flash("La contraseña debe tener al menos 8 caracteres, una letra y un número.", "warning")
-            return render_template('registro_superusuario.html')
-
-        if Superusuario.query.filter_by(correo=correo).first():
-            flash("El correo ya está registrado.", "warning")
-            return redirect(url_for('registro_superusuario'))
-        if Superusuario.query.filter_by(matricula=matricula).first():
-            flash("La matrícula ya está registrada.", "warning")
-            return redirect(url_for('registro_superusuario'))
-        if Superusuario.query.filter_by(username=username).first():
-            flash("El nombre de usuario ya existe.", "warning")
-            return redirect(url_for('registro_superusuario'))
+        p_nombre = request.form.get('p_nombre')
+        s_nombre = request.form.get('s_nombre')
+        p_apellido = request.form.get('p_apellido')
+        s_apellido = request.form.get('s_apellido')
+        correo = request.form.get('correo')
+        contraseña = request.form.get('contraseña')
+        matricula = request.form.get('matricula')
+        username = request.form.get('username')
 
         nuevo_superusuario = Superusuario(
             p_nombre=p_nombre,
@@ -351,10 +333,24 @@ def registro_superusuario():
             p_apellido=p_apellido,
             s_apellido=s_apellido,
             correo=correo,
-            contraseña=generate_password_hash(contraseña),  # Hash seguro
+            contraseña=contraseña,
             matricula=matricula,
             username=username
         )
+
+        existe_correo = Superusuario.query.filter_by(correo=correo).first()
+        existe_matricula = Superusuario.query.filter_by(matricula=matricula).first()
+        existe_username = Superusuario.query.filter_by(username=username).first()
+
+        if existe_correo:
+            flash("El correo ya está registrado como superusuario.", "warning")
+            return redirect(url_for('registro_superusuario'))
+        if existe_matricula:
+            flash("La matrícula ya está registrada.", "warning")
+            return redirect(url_for('registro_superusuario'))
+        if existe_username:
+            flash("El nombre de usuario ya existe.", "warning")
+            return redirect(url_for('registro_superusuario'))
 
         try:
             db.session.add(nuevo_superusuario)
@@ -363,11 +359,9 @@ def registro_superusuario():
             return redirect(url_for('login_superusuario'))
         except Exception as e:
             db.session.rollback()
-            app.logger.error(f"Error registro superusuario: {e}")
-            flash("Error al registrar superusuario.", "danger")
+            flash(f"Error al registrar superusuario: {e}", "danger")
 
     return render_template('registro_superusuario.html')
-
 
 @app.route('/dashboard_usuario')
 @login_usuario_required
@@ -382,27 +376,15 @@ def dashboard_usuario():
     ).all()
     return render_template('dashboard_usuario.html', nombre=session.get('nombre'), citas=citas, ahora=datetime.now())
 
-
-@app.route('/dashboard_maestro')
-@login_maestro_required
-def dashboard_maestro():
-    citas = Cita.query.filter_by(profesor_id=session['maestro_id']).join(Usuario).add_columns(
-        Cita.id_cita,
-        Cita.motivo,
-        Cita.fecha_hora,
-        Usuario.p_nombre.label('usuario_nombre'),
-        Usuario.p_apellido.label('usuario_apellido'),
-        Usuario.correo.label('usuario_correo')
-    ).all()
-    return render_template('dashboard_maestro.html', nombre=session.get('nombre'), citas=citas, ahora=datetime.now())
-
-
 @app.route('/dashboard_superusuario')
-@superusuario_required
 def dashboard_superusuario():
-    citas    = Cita.query.order_by(Cita.fecha_hora.asc()).all()
+    if 'superuser_id' not in session:
+        return redirect(url_for('login_superusuario'))
+
+    citas = Cita.query.order_by(Cita.fecha_hora.asc()).all()
     usuarios = Usuario.query.order_by(Usuario.p_nombre.asc()).all()
     maestros = Profesor.query.order_by(Profesor.p_nombre.asc()).all()
+
     return render_template(
         'dashboard_superusuario_real.html',
         citas=citas,
@@ -593,10 +575,11 @@ def cancelar_cita_superusuario(cita_id):
         flash("Error al cancelar la cita.", "danger")
     return redirect(url_for('dashboard_superusuario'))
 
-
 @app.route('/eliminar_usuario/<int:usuario_id>', methods=['POST'])
-@superusuario_required
 def eliminar_usuario(usuario_id):
+    if not session.get('is_superuser'):
+        return redirect(url_for('home'))
+
     usuario = Usuario.query.get_or_404(usuario_id)
     try:
         Cita.query.filter_by(usuario_id=usuario.id).delete()
@@ -605,14 +588,14 @@ def eliminar_usuario(usuario_id):
         flash('Usuario eliminado correctamente.', 'success')
     except Exception as e:
         db.session.rollback()
-        app.logger.error(f"Error al eliminar usuario: {e}")
-        flash(f'Error al eliminar usuario.', 'danger')
+        flash(f'Error al eliminar usuario: {e}', 'danger')
     return redirect(url_for('dashboard_superusuario'))
 
-
 @app.route('/eliminar_profesor/<int:profesor_id>', methods=['POST'])
-@superusuario_required
 def eliminar_profesor(profesor_id):
+    if not session.get('is_superuser'):
+        return redirect(url_for('home'))
+
     profesor = Profesor.query.get_or_404(profesor_id)
     try:
         Cita.query.filter_by(profesor_id=profesor.id).delete()
@@ -621,10 +604,53 @@ def eliminar_profesor(profesor_id):
         flash('Profesor eliminado correctamente.', 'success')
     except Exception as e:
         db.session.rollback()
-        app.logger.error(f"Error al eliminar profesor: {e}")
-        flash('Error al eliminar profesor.', 'danger')
+        flash(f'Error al eliminar profesor: {e}', 'danger')
     return redirect(url_for('dashboard_superusuario'))
 
+@app.route('/editar_cita_maestro/<int:cita_id>', methods=['GET', 'POST'])
+def editar_cita_maestro(cita_id):
+    if 'maestro_id' not in session:
+        return redirect(url_for('login_maestro'))
+    
+    cita = Cita.query.get_or_404(cita_id)
+    
+
+    if cita.profesor_id != session['maestro_id']:
+        flash("No tienes permiso para editar esta cita", "danger")
+        return redirect(url_for('dashboard_maestro'))
+    
+
+    if cita.fecha_hora < datetime.now():
+        flash("No puedes editar una cita que ya ha pasado", "warning")
+        return redirect(url_for('dashboard_maestro'))
+    
+    if request.method == 'POST':
+        motivo = request.form.get('motivo')
+        fecha_hora_str = request.form.get('fecha_hora')
+        
+        try:
+            fecha_hora = datetime.strptime(fecha_hora_str, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            flash("La fecha y hora no están bien", "danger")
+            return redirect(url_for('editar_cita_maestro', cita_id=cita_id))
+        
+        try:
+            cita.fecha_hora = fecha_hora
+            cita.motivo = motivo
+            db.session.commit()
+            flash("¡Cita actualizada exitosamente!", "success")
+            return redirect(url_for('dashboard_maestro'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error al actualizar: {e}", "danger")
+    
+    usuario = Usuario.query.get(cita.usuario_id)
+    return render_template('editar_cita_maestro.html', cita=cita, usuario=usuario)
+
+@app.route('/logout')
+def logout():
+    session.clear() 
+    return redirect(url_for('home'))
 
 @app.route('/eliminar_cuenta', methods=['POST'])
 def eliminar_cuenta():
@@ -698,7 +724,7 @@ def editar_perfil_usuario():
             if nueva_contraseña:
                 usuario.contraseña = generate_password_hash(nueva_contraseña)
             db.session.commit()
-            session['nombre'] = nombre
+            session['nombre'] = nombre  
             flash("¡Perfil actualizado exitosamente!", "success")
             return redirect(url_for('dashboard_usuario'))
         except Exception as e:
