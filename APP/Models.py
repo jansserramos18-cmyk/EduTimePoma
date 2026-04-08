@@ -5,13 +5,13 @@ db = SQLAlchemy()
 class Usuario(db.Model):    
     __tablename__ = 'usuarios'
     
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, )
     p_nombre = db.Column(db.String(50), nullable=False)
-    s_nombre = db.Column(db.String(50), nullable=True) # Opcional
+    s_nombre = db.Column(db.String(50), nullable=True) 
     p_apellido = db.Column(db.String(50), nullable=False)
-    s_apellido = db.Column(db.String(50), nullable=False)
+    s_apellido = db.Column(db.String(50), nullable=True)
     correo = db.Column(db.String(100), unique=True, nullable=False)
-    contraseña = db.Column(db.String(128), nullable=False) # NUEVO CAMPO
+    contraseña = db.Column(db.String(128), nullable=False) 
 
     citas = db.relationship('Cita', backref='usuario', lazy=True)
 
@@ -27,8 +27,8 @@ class Profesor(db.Model):
     contraseña = db.Column(db.String(128), nullable=False) 
     matricula = db.Column(db.String(20), unique=True, nullable=False)
     username = db.Column(db.String(100), unique=True, nullable=False)
-    dias_disponibles = db.Column(db.String(100), nullable=False)  # Días separados por coma, e.g. "lunes,martes,miércoles"
-    is_superuser = db.Column(db.Boolean, default=False)
+    dias_disponibles = db.Column(db.String(100), nullable=False) 
+    is_superuser = db.Column(db.Boolean, default=False) 
     
 
     citas = db.relationship('Cita', backref='profesor', lazy=True)

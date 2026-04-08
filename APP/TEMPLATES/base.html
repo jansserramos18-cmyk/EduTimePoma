@@ -30,7 +30,7 @@
         </div>
     </header>
 
-    <!-- HERO SECTION -->
+
     <section class="hero-section">
         <div class="hero-content">
             <h1>Bienvenido a EduTimePoma</h1>
@@ -39,7 +39,7 @@
         </div>
     </section>
 
-    <!-- ABOUT SECTION -->
+
     <section>
         <div class="section-title">¿Quiénes somos?</div>
         <div class="about-card">
@@ -52,7 +52,6 @@
         </div>
     </section>
 
-    <!-- OBJECTIVES SECTION -->
     <section>
         <h2 class="section-title">Nuestros Objetivos</h2>
         <p style="text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 40px;">
@@ -76,15 +75,18 @@
         </div>
     </section>
 
-    <!-- HOW IT WORKS -->
     <section>
         <div class="how-it-works">
             <h3><i class="fas fa-question-circle"></i> ¿Cómo Funciona?</h3>
             <p>Es muy sencillo. Solo debes <strong>registrarte</strong> con tu correo electrónico y contraseña. Luego podrás <strong>explorar nuestro catálogo de maestros</strong> y seleccionar el que mejor se adapte a tus necesidades. Finalmente, <strong>elige la fecha y hora</strong> que mejor te convenga para tu cita. ¡Así de simple!</p>
+            <img src="{{ url_for('static', filename='assets/calendario-de-cita-médico-de-la-atención-sanitaria-del-tratamiento-79890409.webp') }}" alt="agendar cita" width="300" style="padding: 20px; align-items: center; margin: 0 auto; display: block;">
+            <video width="640" height="360" controls style="display: block; margin: 20px auto; width: 100%; max-width: 800px; margin: 0 auto;">
+                <source src="{{ url_for('static', filename='assets/20260408-1853-08.8621871.mp4') }}" type="video/mp4">
+            </video>
         </div>
     </section>
 
-    <!-- CTA SECTION -->
+
     <section>
         <div class="cta-section">
             <h2>¡Únete a EduTimePoma hoy mismo!</h2>
@@ -95,7 +97,7 @@
         </div>
     </section>
 
-    <!-- FOOTER -->
+
     <footer>
         <div class="footer-content">
             <div class="footer-section">
@@ -117,7 +119,7 @@
         </div>
         <div class="footer-bottom">
             <p>&copy; 2026 EduTimePoma. Todos los derechos reservados.</p>
-            <p>Diseñado con todo el <i class="fas fa-heart" style="color: #ff6b6b;"></i> por Jansser, Fernando, Jazmeidy, Danexi y Nicole.</p>
+            <p>Diseñado con todo el <i class="fas fa-heart" style="color: #ff6b6b;"></i> por Jansser, Fernando, Danexi y Nicole.</p>
         </div>
     </footer>
     <script src="{{ url_for('static', filename='js/base.js') }}"></script>

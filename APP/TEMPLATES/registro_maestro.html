@@ -10,39 +10,44 @@
 </head>
 <body class="bg-light">
     <div class="container">
-        <a href="{{ url_for('home') }}" class="btn btn-secondary mb-3">
-            <i class="fas fa-arrow-left"></i> Volver al Inicio
+        <a href="{{ url_for('dashboard_superusuario') }}" class="btn btn-secondary mb-3">
+            <i class="fas fa-arrow-left"></i> Volver atrás
         </a>
         
         <div class="card">
             <div class="card-header">
-                <h3><i class="fas fa-chalkboard-user"></i> Registrarse como Docente</h3>
+                <h3><i class="fas fa-chalkboard-user"></i> Registrar Docente</h3>
             </div>
             <div class="card-body">
                 <form method="POST" action="{{ url_for('registro_maestro') }}">
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre:</label>
-                        <input type="text" class="form-control" id="nombre" placeholder="Tu nombre" name="nombre" required>
+                        <input type="text" class="form-control" id="nombre" placeholder="Nombre" name="nombre" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="s_nombre" class="form-label">Segundo Nombre (Opcional):</label>
-                        <input type="text" class="form-control" id="s_nombre" placeholder="Tu segundo nombre" name="s_nombre">
+                        <input type="text" class="form-control" id="s_nombre" placeholder="Segundo nombre" name="s_nombre">
                     </div>
                     
                     <div class="mb-3">
                         <label for="apellido_p" class="form-label">Apellido Paterno:</label>
-                        <input type="text" class="form-control" id="apellido_p" placeholder="Tu apellido" name="apellido_p" required>
+                        <input type="text" class="form-control" id="apellido_p" placeholder="Apellido paterno" name="apellido_p" required>
                     </div>
                     
                     <div class="mb-3">
                         <label for="apellido_m" class="form-label">Apellido Materno:</label>
-                        <input type="text" class="form-control" id="apellido_m" placeholder="Tu apellido" name="apellido_m" required>
+                        <input type="text" class="form-control" id="apellido_m" placeholder="Apellido materno" name="apellido_m">
                     </div>
 
                     <div class="mb-3">
                         <label for="matricula" class="form-label">Matrícula:</label>
                         <input type="text" class="form-control" id="matricula" placeholder="Tu matrícula" name="matricula" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="correo" class="form-label">Correo Electrónico:</label>
+                        <input type="email" class="form-control" id="correo" placeholder="Correo electrónico" name="correo" required>
                     </div>
 
                     <div class="mb-3">
@@ -58,21 +63,17 @@
                             <label for="jueves">Jueves</label><br>
                             <input type="checkbox" id="viernes" name="dias" value="viernes">
                             <label for="viernes">Viernes</label><br>
-                            <input type="checkbox" id="sabado" name="dias" value="sábado">
-                            <label for="sabado">Sábado</label><br>
-                            <input type="checkbox" id="domingo" name="dias" value="domingo">
-                            <label for="domingo">Domingo</label>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="contraseña" class="form-label">Contraseña:</label>
-                        <input type="password" class="form-control" id="contraseña" placeholder="Tu contraseña" name="contraseña" required>
+                        <input type="password" class="form-control" id="contraseña" placeholder="Contraseña" name="contraseña" required>
                     </div>
 
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-success">
-                            <i class="fas fa-chalkboard-user"></i> Registrarse
+                            <i class="fas fa-chalkboard-user"></i> Registrar
                         </button>
                     </div>
                 </form>
@@ -80,9 +81,6 @@
                 <hr>
                 <p class="text-center">
                     <small>Al registrarte estás aceptando nuestros <a href="#">términos y condiciones</a></small>
-                </p>
-                <p class="text-center">
-                    <small>¿Ya estás registrado? <a href="{{ url_for('login_maestro') }}">Inicia sesión aquí</a></small>
                 </p>
             </div>
         </div>
