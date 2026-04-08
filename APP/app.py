@@ -285,7 +285,6 @@ def registro_maestro():
             contraseña=generate_password_hash(contraseña),  # Hash seguro
             matricula=matricula,
             username=username,
-            dias_disponibles=dias_disponibles
         )
 
         existe_correo = Profesor.query.filter_by(correo=correo).first()
