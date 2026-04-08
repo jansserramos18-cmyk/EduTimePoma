@@ -16,7 +16,7 @@
                     <h3 class="card-title">Editar Cita Agendada</h3>
                     <div>
                         <a href="{{ url_for('dashboard_maestro') }}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-arrow-left"></i> Volver
+                        Volver
                         </a>
                     </div>
                 </div>
@@ -33,7 +33,7 @@
                     {% endwith %}
 
                     <div class="alert alert-info mb-4">
-                        <strong><i class="fas fa-info-circle"></i> Información del Usuario:</strong>
+                        <strong>Información del Usuario:</strong>
                         <ul class="mb-0 mt-2">
                             <li><strong>Nombre:</strong> {{ usuario.p_nombre }} {{ usuario.p_apellido }}</li>
                             <li><strong>Correo:</strong> {{ usuario.correo }}</li>
@@ -51,10 +51,10 @@
                         
                         <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
                             <a href="{{ url_for('dashboard_maestro') }}" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancelar
+                            Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Guardar Cambios
+                            Guardar Cambios
                             </button>
                         </div>
                     </form>
